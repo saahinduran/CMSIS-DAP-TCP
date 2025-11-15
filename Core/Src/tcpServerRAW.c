@@ -78,6 +78,19 @@ static err_t tcp_server_accept(void *arg, struct tcp_pcb *newpcb, err_t err)
     return ERR_OK;
 }
 
+struct cmsis_dap_tcp_packet_hdr {
+    uint32_t signature;         // "DAP"
+    uint16_t length;            // Not including header length.
+    uint8_t packet_type;
+    uint8_t reserved;           // Reserved for future use.
+}cmsis_dap_tcp_pck __attribute__((__packed__));
+
+// DAP_PKT_SIZE must be >= to what is used by the client (OpenOCD).
+#define DAP_PKT_SIZE            CONFIG_ESP_DAP_TCP_MAX_PKT_SIZE
+#define DAP_PKT_HDR_SIGNATURE   0x00504144   // "DAP\0" in LE
+#define DAP_PKT_TYPE_REQUEST    0x01
+#define DAP_PKT_TYPE_RESPONSE   0x02
+
 static err_t tcp_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
 {
     if (err != ERR_OK || p == NULL) {
@@ -93,7 +106,7 @@ static err_t tcp_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, er
     tcp_recved(tpcb, p->tot_len);
 
     /* Copy data into a local buffer */
-    char input[256];
+    static char input[256];
     size_t len = (p->tot_len < sizeof(input) - 1) ? p->tot_len : sizeof(input) - 1;
     pbuf_copy_partial(p, input, len, 0);
     input[len] = '\0';
@@ -101,16 +114,23 @@ static err_t tcp_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, er
     printf("Received: %s\n", input);
 
     /* Process data */
-    char response[256];
-    process_data(input, response, sizeof(response));
+    static char response[256];
 
-    uint32_t num = DAP_ProcessCommand(input, response);
-    uint32_t writeLen = (num & 0xFFFF);
+    uint32_t num = DAP_ProcessCommand(input + 8, response + 8);
+    uint32_t writeLen = (num & 0xFFFF) + 8;
+
+    struct cmsis_dap_tcp_packet_hdr hdr;
+	hdr.signature = (DAP_PKT_HDR_SIGNATURE);
+	hdr.length = writeLen -8;
+	hdr.packet_type = DAP_PKT_TYPE_RESPONSE;
+	hdr.reserved = 0;
+
+	memcpy(response, &hdr, sizeof(hdr));
 
     printf("Responding: %s\n", response);
 
     /* Send response */
-    HAL_Delay(10);
+    //HAL_Delay(10);
     err_t werr = tcp_write(tpcb, response, writeLen, TCP_WRITE_FLAG_COPY);
     if (werr == ERR_OK) {
         tcp_output(tpcb);

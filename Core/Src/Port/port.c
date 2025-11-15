@@ -153,6 +153,7 @@ void SPI_TMS_Transfer(uint64_t data, uint8_t bits)
 	 * and bring it back to a known state.
 	 * If I do so, SWDIO and SWCLK line may become unstable and target debug logic may crash.
 	 */
+	/*
 	while( (TMSPI->SR & (0x1 << 7) ) )
 	{
 		b++;
@@ -161,7 +162,7 @@ void SPI_TMS_Transfer(uint64_t data, uint8_t bits)
 			NVIC_SystemReset();
 		}
 	}
-
+*/
 	uint32_t dummyRead = TMSPI->DR;
 
 	/* clear read data buffer */

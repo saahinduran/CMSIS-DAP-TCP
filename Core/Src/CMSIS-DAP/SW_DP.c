@@ -50,7 +50,7 @@ void SWJ_Sequence (uint32_t count, const uint8_t *data) {
   	uint32_t currentBit = 0;
 
   	/* Value is experimental. May differ from target(debugger) to target. */
-  	uint32_t delay_cnt = 2500;
+  	uint32_t delay_cnt = 25000;
 
   	  		while(delay_cnt--)
   	  	    {

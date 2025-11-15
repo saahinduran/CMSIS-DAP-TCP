@@ -42,7 +42,7 @@ void Error_Handler(void);
 uint32_t EthernetLinkTimer;
 
 /* Variables Initialization */
-struct netif gnetif;
+volatile struct netif gnetif;
 ip4_addr_t ipaddr;
 ip4_addr_t netmask;
 ip4_addr_t gw;
