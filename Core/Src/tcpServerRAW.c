@@ -1,3 +1,4 @@
+#if 1
 /*
  * stm32_lwip_tcp_server.c
  *
@@ -13,6 +14,7 @@
 #include "lwip/ip_addr.h"
 #include <string.h>
 #include <stdio.h>
+#include "DAP.h"
 
 #define TCP_SERVER_PORT 5000
 
@@ -102,10 +104,14 @@ static err_t tcp_server_recv(void *arg, struct tcp_pcb *tpcb, struct pbuf *p, er
     char response[256];
     process_data(input, response, sizeof(response));
 
+    uint32_t num = DAP_ProcessCommand(input, response);
+    uint32_t writeLen = (num & 0xFFFF);
+
     printf("Responding: %s\n", response);
 
     /* Send response */
-    err_t werr = tcp_write(tpcb, response, strlen(response), TCP_WRITE_FLAG_COPY);
+    HAL_Delay(10);
+    err_t werr = tcp_write(tpcb, response, writeLen, TCP_WRITE_FLAG_COPY);
     if (werr == ERR_OK) {
         tcp_output(tpcb);
     } else {
@@ -144,3 +150,4 @@ static void tcp_server_close_conn(struct tcp_pcb *tpcb, void *conn)
    - Call tcp_server_init() after MX_LWIP_Init() completes.
    - The server listens on port 5000.
    - When a client sends data, process_data() transforms it (example: uppercase) and returns it. */
+#endif
