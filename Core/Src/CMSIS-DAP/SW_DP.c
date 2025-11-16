@@ -50,7 +50,7 @@ void SWJ_Sequence (uint32_t count, const uint8_t *data) {
   	uint32_t currentBit = 0;
 
   	/* Value is experimental. May differ from target(debugger) to target. */
-  	uint32_t delay_cnt = 25000;
+  	uint32_t delay_cnt = 0;
 
   	  		while(delay_cnt--)
   	  	    {
@@ -59,7 +59,7 @@ void SWJ_Sequence (uint32_t count, const uint8_t *data) {
 
   	while(xFerSizes[IDX_8_BIT])
   	{
-  		uint8_t tms_val = *data;
+  		uint64_t tms_val = *data;
   		uint64_t tdo_val;
 
   		SPI_TMS_Transfer(tms_val, 8);
@@ -72,14 +72,14 @@ void SWJ_Sequence (uint32_t count, const uint8_t *data) {
 
   	while(xFerSizes[IDX_RM1_BIT])
   	{
-  		uint32_t delay_cnt = 2500;
+  		uint32_t delay_cnt = 0;
 
   		while(delay_cnt--)
   	    {
   		  __asm("nop");
   	    }
 
-  		uint16_t tms_val = extract_nbits_lsb(data, currentBit, xFerSizes[IDX_RM1_BIT]);
+  		uint64_t tms_val = extract_nbits_lsb(data, currentBit, xFerSizes[IDX_RM1_BIT]);
   		uint64_t tdo_val;
 
   		SPI_TMS_Transfer(tms_val, xFerSizes[IDX_RM1_BIT]);
@@ -94,14 +94,14 @@ void SWJ_Sequence (uint32_t count, const uint8_t *data) {
 
   	while(xFerSizes[IDX_RM2_BIT])
   	{
-  		uint32_t delay_cnt = 2000;
+  		uint32_t delay_cnt = 0;
 
   		while(delay_cnt--)
   		{
   		  __asm("nop");
   		}
 
-  		uint16_t tms_val = extract_nbits_lsb(data, currentBit, xFerSizes[IDX_RM2_BIT]);
+  		uint64_t tms_val = extract_nbits_lsb(data, currentBit, xFerSizes[IDX_RM2_BIT]);
   		uint64_t tdo_val;
 
   		SPI_TMS_Transfer(tms_val, xFerSizes[IDX_RM2_BIT]);
@@ -159,7 +159,7 @@ void SWD_Sequence (uint32_t info, const uint8_t *swdo, uint8_t *swdi)
 	  SPI_SwitchPhaseToWrite();
 	  if(n == 33)
 	  {
-		  uint16_t writeVal = 0;
+		  uint64_t writeVal = 0;
 
 		  writeVal = (*swdo);
 		  swdo++;
@@ -231,7 +231,7 @@ uint8_t SWD_Transfer_LL(uint32_t request, uint32_t *data)
 /* this function is the HEART of the SWD protocol*/
 {
   uint32_t ack;
-  uint8_t writeReq = 1;
+  uint64_t writeReq = 1;
 
   uint32_t parity;
   uint32_t bit;

@@ -244,11 +244,11 @@ static uint32_t DAP_HostStatus(const uint8_t *request, uint8_t *response) {
 static uint32_t DAP_Connect(const uint8_t *request, uint8_t *response) {
   uint32_t port;
 
-  JTAG_Reset();
+  //JTAG_Reset();
 
-  HardResetSPI();
+  //HardResetSPI();
 
-  Switch_SPI();
+  //Switch_SPI();
 
   if (*request == DAP_PORT_AUTODETECT) {
     port = DAP_DEFAULT_PORT;

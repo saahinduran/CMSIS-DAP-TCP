@@ -28,6 +28,8 @@ void Switch_SPI(void)
 
 	GPIOC->PUPDR = (0x1 << 16);
 	GPIOC->AFR[1] = (0x6 << 8) | (0x6 << 12) | (0x6 << 16);
+	GPIOC->OSPEEDR |= (0x3 << 20) | (0x3 << 22) | (0x3 << 24);
+	GPIOE->OSPEEDR |= (0x3 << 4) | (0x3 << 10);
 
 	GPIOC->MODER |= (1 << 16) | (0x1 << 18) | (0x2 << 20) | (0x2 << 22 )| (0x2 << 24);
 
